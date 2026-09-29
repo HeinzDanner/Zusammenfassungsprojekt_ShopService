@@ -7,6 +7,18 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+
+class OrderListRepoTest extends OrderRepoContractTest {
+
+    @Override
+    protected OrderRepo createRepository() {
+        return new OrderListRepo();
+    }
+
+
+/*
+
+
 class OrderListRepoTest {
 
     private OrderListRepo orderRepo;
@@ -50,4 +62,6 @@ class OrderListRepoTest {
 
         assertThat(orderRepo.getAll()).doesNotContain(order);
     }
+
+ */
 }

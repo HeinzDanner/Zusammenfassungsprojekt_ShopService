@@ -10,6 +10,7 @@ public class OrderListRepo implements OrderRepo {
 
     @Override
     public void add(Order order) {
+        orders.removeIf(existing -> existing.id().equals(order.id()));
         orders.add(order);
     }
 
