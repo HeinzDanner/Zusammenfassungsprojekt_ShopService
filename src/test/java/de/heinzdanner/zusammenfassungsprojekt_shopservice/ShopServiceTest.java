@@ -8,6 +8,7 @@ import java.io.PrintStream;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ShopServiceTest {
 
@@ -83,5 +84,29 @@ class ShopServiceTest {
         } finally {
             System.setOut(originalOut);
         }
+    }
+
+    @Test
+    void addOrder_shouldRejectBlankOrderId() {
+        assertThatThrownBy(() -> shopService.addOrder("   ", List.of("P-001")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Order ID");
+    }
+
+    @Test
+    void addOrder_shouldNotStoreOrder_whenProductListIsEmpty() {
+        shopService.addOrder("O-005", List.of());
+
+        assertThat(orderRepo.getById("O-005"))
+                .isEmpty();
+    }
+
+    @Test
+    void addOrder_shouldRejectDuplicateOrderId() {
+        shopService.addOrder("O-006", List.of("P-001"));
+
+        assertThatThrownBy(() -> shopService.addOrder("O-006", List.of("P-002")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("already exists");
     }
 }
