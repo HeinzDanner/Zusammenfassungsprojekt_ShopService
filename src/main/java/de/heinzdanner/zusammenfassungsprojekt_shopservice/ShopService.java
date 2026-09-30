@@ -20,44 +20,44 @@ public class ShopService {
             throw new IllegalArgumentException("Order ID must not be null or blank.");
         }
         if (orderRepo.getById(orderId).isPresent()) {
-            throw new IllegalArgumentException(
-                    "Order with ID " + orderId + " already exists."
-            );
+            throw new IllegalArgumentException("Order with ID " + orderId + " already exists.");
         }
         if (productIds == null || productIds.isEmpty()) {
-            System.out.println("Keine Produkte für Bestellung " + orderId + " vorhanden.");
-            return;
+            throw new IllegalArgumentException("Product IDs must not be null or empty.");
         }
 
         List<OrderItem> orderedItems = new ArrayList<>();
+        List<Product> productsToUpdate = new ArrayList<>();
 
+        // 1) Alles vorab prüfen + neue Bestände vorbereiten
         for (String productId : productIds) {
             if (productId == null || productId.isBlank()) {
-                System.out.println("Produkt-ID ist ungültig.");
-                continue;
+                throw new IllegalArgumentException("Product ID must not be null or blank.");
             }
 
-            Optional<Product> foundProduct = productRepo.getById(productId);
-            if (foundProduct.isPresent()) {
-                orderedItems.add(
-                        new OrderItem(foundProduct.get(), 1, BigDecimal.ZERO)
+            Product product = productRepo.getById(productId)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Product with ID " + productId + " does not exist."
+                    ));
+
+            if (product.stock() < 1) {
+                throw new IllegalArgumentException(
+                        "Not enough stock for product ID " + productId + "."
                 );
-            } else {
-                System.out.println("Produkt mit ID " + productId + " existiert nicht.");
             }
+
+            orderedItems.add(new OrderItem(product, 1, BigDecimal.ZERO));
+            productsToUpdate.add(product.withStock(product.stock() - 1));
         }
 
-        if (!orderedItems.isEmpty()) {
-            Order order = new Order(orderId, orderedItems);
-            orderRepo.add(order);
-            System.out.println("Bestellung " + orderId + " wurde angelegt.");
-        } else {
-            System.out.println(
-                    "Keine gültigen Produkte für Bestellung "
-                            + orderId
-                            + " vorhanden."
-            );
+        // 2) Erst nach erfolgreicher Komplettprüfung schreiben
+        for (Product updatedProduct : productsToUpdate) {
+            productRepo.update(updatedProduct);
         }
+
+        Order order = new Order(orderId, orderedItems);
+        orderRepo.add(order);
+        System.out.println("Bestellung " + orderId + " wurde angelegt.");
     }
 
     public void receiveGoods(String productId, int quantity) {

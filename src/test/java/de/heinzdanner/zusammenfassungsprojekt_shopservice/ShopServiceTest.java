@@ -45,45 +45,12 @@ class ShopServiceTest {
     }
 
     @Test
-    void addOrder_shouldStoreOnlyExistingProducts_whenOneProductDoesNotExist() {
-        shopService.addOrder("O-002", List.of("P-001", "P-999"));
+    void addOrder_shouldThrow_whenProductDoesNotExist() {
+        assertThatThrownBy(() -> shopService.addOrder("O-004", List.of("P-999")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("does not exist");
 
-        Order order = orderRepo.getById("O-002").orElseThrow();
-
-        assertThat(order.items())
-                .extracting(OrderItem::product)
-                .containsExactly(new Product("P-001", "Apfel", 10));
-    }
-
-    @Test
-    void addOrder_shouldNotStoreOrder_whenNoProductExists() {
-        shopService.addOrder(
-                "O-003",
-                List.of("P-999")
-        );
-
-        assertThat(orderRepo.getById("O-003"))
-                .isEmpty();
-    }
-
-    @Test
-    void addOrder_shouldPrintMessage_whenProductDoesNotExist() {
-        PrintStream originalOut = System.out;
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-        try {
-            System.setOut(new PrintStream(output));
-
-            shopService.addOrder(
-                    "O-004",
-                    List.of("P-999")
-            );
-
-            assertThat(output.toString())
-                    .contains("Produkt mit ID P-999 existiert nicht.");
-        } finally {
-            System.setOut(originalOut);
-        }
+        assertThat(orderRepo.getById("O-004")).isEmpty();
     }
 
     @Test
@@ -91,14 +58,6 @@ class ShopServiceTest {
         assertThatThrownBy(() -> shopService.addOrder("   ", List.of("P-001")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Order ID");
-    }
-
-    @Test
-    void addOrder_shouldNotStoreOrder_whenProductListIsEmpty() {
-        shopService.addOrder("O-005", List.of());
-
-        assertThat(orderRepo.getById("O-005"))
-                .isEmpty();
     }
 
     @Test
@@ -137,5 +96,65 @@ class ShopServiceTest {
         assertThatThrownBy(() -> shopService.removeGoods("P-001", 999))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Not enough stock");
+    }
+
+    @Test
+    void addOrder_shouldRejectUnknownProduct_andNotStoreOrder() {
+        Product beforeApple = productRepo.getById("P-001").orElseThrow();
+
+        assertThatThrownBy(() -> shopService.addOrder("O-002", List.of("P-001", "P-999")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("does not exist");
+
+        assertThat(orderRepo.getById("O-002")).isEmpty();
+
+        Product afterApple = productRepo.getById("P-001").orElseThrow();
+        assertThat(afterApple.stock()).isEqualTo(beforeApple.stock());
+    }
+
+  
+    @Test
+    void addOrder_shouldDecreaseStock_whenOrderIsStored() {
+        Product beforeApple = productRepo.getById("P-001").orElseThrow();
+        Product beforeBanana = productRepo.getById("P-002").orElseThrow();
+
+        shopService.addOrder("O-100", List.of("P-001", "P-002"));
+
+        Product afterApple = productRepo.getById("P-001").orElseThrow();
+        Product afterBanana = productRepo.getById("P-002").orElseThrow();
+
+        assertThat(afterApple.stock()).isEqualTo(beforeApple.stock() - 1);
+        assertThat(afterBanana.stock()).isEqualTo(beforeBanana.stock() - 1);
+        assertThat(orderRepo.getById("O-100")).isPresent();
+    }
+
+    @Test
+    void addOrder_shouldRejectWhenStockIsTooLow_andNotStoreOrder() {
+        // Bestand auf 0 setzen
+        Product apple = productRepo.getById("P-001").orElseThrow();
+        productRepo.update(apple.withStock(0));
+
+        assertThatThrownBy(() -> shopService.addOrder("O-101", List.of("P-001")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Not enough stock");
+
+        assertThat(orderRepo.getById("O-101")).isEmpty();
+
+        Product unchanged = productRepo.getById("P-001").orElseThrow();
+        assertThat(unchanged.stock()).isEqualTo(0);
+    }
+
+    @Test
+    void addOrder_shouldRejectUnknownProduct_andNotChangeAnyStock() {
+        Product beforeApple = productRepo.getById("P-001").orElseThrow();
+
+        assertThatThrownBy(() -> shopService.addOrder("O-102", List.of("P-001", "P-999")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("does not exist");
+
+        assertThat(orderRepo.getById("O-102")).isEmpty();
+
+        Product afterApple = productRepo.getById("P-001").orElseThrow();
+        assertThat(afterApple.stock()).isEqualTo(beforeApple.stock());
     }
 }
