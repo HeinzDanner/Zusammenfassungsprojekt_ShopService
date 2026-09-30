@@ -13,7 +13,7 @@ public class Main {
         productRepo.add(apple);
         productRepo.add(banana);
 
-        OrderRepo orderRepo = new OrderListRepo();
+        OrderRepo orderRepo = new OrderMapRepo();
         ShopService shopService = new ShopService(productRepo, orderRepo);
 
         shopService.addOrder("O-001", List.of("P-001", "P-002"));
