@@ -30,7 +30,7 @@ class OrderListRepoTest {
 
     @Test
     void add_shouldAddOrder() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
         Order order = new Order("O-001", List.of(product));
 
         orderRepo.add(order);
@@ -40,7 +40,7 @@ class OrderListRepoTest {
 
     @Test
     void getById_shouldReturnOrder_whenExists() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
         Order order = new Order("O-001", List.of(product));
         orderRepo.add(order);
 
@@ -54,7 +54,7 @@ class OrderListRepoTest {
 
     @Test
     void remove_shouldDeleteOrder() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
         Order order = new Order("O-001", List.of(product));
         orderRepo.add(order);
 

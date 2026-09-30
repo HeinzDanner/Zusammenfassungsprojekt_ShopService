@@ -11,7 +11,7 @@ class OrderItemTest {
 
     @Test
     void constructor_shouldCreateOrderItem_whenValuesAreValid() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
 
         OrderItem item = new OrderItem(product, 2, new BigDecimal("1.99"));
 
@@ -29,7 +29,7 @@ class OrderItemTest {
 
     @Test
     void constructor_shouldThrowException_whenQuantityIsZero() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
 
         assertThatThrownBy(() -> new OrderItem(product, 0, BigDecimal.ONE))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -38,7 +38,7 @@ class OrderItemTest {
 
     @Test
     void constructor_shouldThrowException_whenQuantityIsNegative() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
 
         assertThatThrownBy(() -> new OrderItem(product, -1, BigDecimal.ONE))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -47,7 +47,7 @@ class OrderItemTest {
 
     @Test
     void constructor_shouldThrowException_whenPriceIsNull() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
 
         assertThatThrownBy(() -> new OrderItem(product, 1, null))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -56,7 +56,7 @@ class OrderItemTest {
 
     @Test
     void constructor_shouldThrowException_whenPriceIsNegative() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
 
         assertThatThrownBy(() -> new OrderItem(product, 1, new BigDecimal("-0.01")))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -65,7 +65,7 @@ class OrderItemTest {
 
     @Test
     void totalPrice_shouldReturnPriceMultipliedByQuantity() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
         OrderItem item = new OrderItem(product, 3, new BigDecimal("2.50"));
 
         assertThat(item.totalPrice()).isEqualByComparingTo("7.50");

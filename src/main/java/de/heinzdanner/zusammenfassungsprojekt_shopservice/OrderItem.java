@@ -26,4 +26,8 @@ public record OrderItem(
     public BigDecimal totalPrice() {
         return price.multiply(BigDecimal.valueOf(quantity));
     }
+
+    public OrderItem withQuantity(int newQuantity) {
+        return new OrderItem(product, newQuantity, price);
+    }
 }
