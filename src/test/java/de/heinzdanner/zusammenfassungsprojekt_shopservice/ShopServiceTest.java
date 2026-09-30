@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ShopServiceTest {
-
+    private StockMovementRepo stockMovementRepo;
     private ProductRepo productRepo;
     private OrderRepo orderRepo;
     private ShopService shopService;
@@ -20,7 +20,8 @@ class ShopServiceTest {
     void setUp() {
         productRepo = new ProductRepo();
         orderRepo = new OrderListRepo();
-        shopService = new ShopService(productRepo, orderRepo);
+        stockMovementRepo = new StockMovementRepo();
+        shopService = new ShopService(productRepo, orderRepo, stockMovementRepo);
 
         productRepo.add(new Product("P-001", "Apfel", 10));
         productRepo.add(new Product("P-002", "Banane", 20));
@@ -112,7 +113,7 @@ class ShopServiceTest {
         assertThat(afterApple.stock()).isEqualTo(beforeApple.stock());
     }
 
-  
+
     @Test
     void addOrder_shouldDecreaseStock_whenOrderIsStored() {
         Product beforeApple = productRepo.getById("P-001").orElseThrow();
@@ -157,4 +158,46 @@ class ShopServiceTest {
         Product afterApple = productRepo.getById("P-001").orElseThrow();
         assertThat(afterApple.stock()).isEqualTo(beforeApple.stock());
     }
+
+    @Test
+    void addOrder_shouldCreateStockMovement() {
+        shopService.addOrder("O-200", List.of("P-001"));
+
+        List<StockMovement> movements = stockMovementRepo.getAll();
+
+        assertThat(movements)
+                .isNotEmpty();
+
+        assertThat(movements.get(0).movementType()).isEqualTo("BESTELLUNG");
+        assertThat(movements.get(0).productId()).isEqualTo("P-001");
+    }
+
+    @Test
+    void receiveGoods_shouldCreateStockMovement() {
+        shopService.receiveGoods("P-001", 5);
+
+        assertThat(stockMovementRepo.getAll())
+                .anySatisfy(movement -> {
+                    assertThat(movement.productId()).isEqualTo("P-001");
+                    assertThat(movement.movementType()).isEqualTo("WARENEINGANG");
+                    assertThat(movement.quantityBefore()).isEqualTo(10);
+                    assertThat(movement.quantityAfter()).isEqualTo(15);
+                    assertThat(movement.reason()).isEqualTo("Wareneingang");
+                });
+    }
+
+    @Test
+    void removeGoods_shouldCreateStockMovement() {
+        shopService.removeGoods("P-001", 4);
+
+        assertThat(stockMovementRepo.getAll())
+                .anySatisfy(movement -> {
+                    assertThat(movement.productId()).isEqualTo("P-001");
+                    assertThat(movement.movementType()).isEqualTo("WARENAUSGANG");
+                    assertThat(movement.quantityBefore()).isEqualTo(10);
+                    assertThat(movement.quantityAfter()).isEqualTo(6);
+                    assertThat(movement.reason()).isEqualTo("Warenausgang");
+                });
+    }
+
 }
