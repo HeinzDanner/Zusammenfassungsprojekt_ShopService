@@ -35,6 +35,8 @@ public class ShopService {
 
         List<OrderItem> orderedItems = new ArrayList<>();
         List<Product> productsToUpdate = new ArrayList<>();
+        List<StockMovement> movementsToAdd = new ArrayList<>();
+        
 
         for (String productId : productIds) {
             if (productId == null || productId.isBlank()) {
@@ -68,11 +70,15 @@ public class ShopService {
                     "Bestellung " + orderId,
                     LocalDateTime.now()
             );
-            stockMovementRepo.add(movement);
+            movementsToAdd.add(movement);
         }
 
         for (Product updatedProduct : productsToUpdate) {
             productRepo.update(updatedProduct);
+        }
+
+        for (StockMovement movement : movementsToAdd) {
+            stockMovementRepo.add(movement);
         }
 
         Order order = new Order(orderId, orderedItems);

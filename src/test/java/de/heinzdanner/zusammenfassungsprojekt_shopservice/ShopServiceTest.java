@@ -200,4 +200,12 @@ class ShopServiceTest {
                 });
     }
 
+    @Test
+    void addOrder_shouldNotCreateStockMovement_whenOrderFails() {
+        assertThatThrownBy(() -> shopService.addOrder("O-300", List.of("P-001", "P-999")))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThat(stockMovementRepo.getAll()).isEmpty();
+    }
+
 }
