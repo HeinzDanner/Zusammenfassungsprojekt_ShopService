@@ -2,6 +2,7 @@ package de.heinzdanner.zusammenfassungsprojekt_shopservice;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,8 +51,11 @@ abstract class OrderRepoContractTest {
     void add_shouldReplaceOrderWithSameId() {
         OrderRepo orderRepo = createRepository();
         Order first = order("O-001");
-        Order replacement = new Order("O-001", List.of(new Product("P-002", "Banane")));
-
+        // Order replacement = new Order("O-001", List.of(new Product("P-002", "Banane")));
+        Order replacement = new Order(
+                "O-001",
+                List.of(new OrderItem(new Product("P-002", "Banane"), 1, BigDecimal.ONE))
+        );
         orderRepo.add(first);
         orderRepo.add(replacement);
 
@@ -60,7 +64,10 @@ abstract class OrderRepoContractTest {
     }
 
     private Order order(String id) {
-        return new Order(id, List.of(new Product("P-001", "Apfel")));
+        return new Order(
+                id,
+                List.of(new OrderItem(new Product("P-001", "Apfel"), 1, BigDecimal.ONE))
+        );
     }
 }
 

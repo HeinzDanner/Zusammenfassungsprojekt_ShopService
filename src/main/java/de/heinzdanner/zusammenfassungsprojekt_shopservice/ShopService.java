@@ -1,5 +1,6 @@
 package de.heinzdanner.zusammenfassungsprojekt_shopservice;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,22 +15,34 @@ public class ShopService {
     }
 
     public void addOrder(String orderId, List<String> productIds) {
-        List<Product> orderedProducts = new ArrayList<>();
+        List<OrderItem> orderedItems = new ArrayList<>();
 
         for (String productId : productIds) {
             productRepo.getById(productId)
                     .ifPresentOrElse(
-                            orderedProducts::add,
-                            () -> System.out.println("Produkt mit ID " + productId + " existiert nicht.")
+                            product -> orderedItems.add(
+                                    new OrderItem(
+                                            product,
+                                            1,
+                                            BigDecimal.ZERO
+                                    )
+                            ),
+                            () -> System.out.println(
+                                    "Produkt mit ID " + productId + " existiert nicht."
+                            )
                     );
         }
 
-        if (!orderedProducts.isEmpty()) {
-            Order order = new Order(orderId, orderedProducts);
+        if (!orderedItems.isEmpty()) {
+            Order order = new Order(orderId, orderedItems);
             orderRepo.add(order);
             System.out.println("Bestellung " + orderId + " wurde angelegt.");
         } else {
-            System.out.println("Keine gültigen Produkte für Bestellung " + orderId + " vorhanden.");
+            System.out.println(
+                    "Keine gültigen Produkte für Bestellung "
+                            + orderId
+                            + " vorhanden."
+            );
         }
     }
 }

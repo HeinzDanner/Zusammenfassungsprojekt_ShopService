@@ -27,42 +27,31 @@ class ShopServiceTest {
 
     @Test
     void addOrder_shouldStoreOrder_whenAllProductsExist() {
-        shopService.addOrder(
-                "O-001",
-                List.of("P-001", "P-002")
-        );
+        shopService.addOrder("O-001", List.of("P-001", "P-002"));
 
-        assertThat(orderRepo.getById("O-001"))
-                .isPresent()
-                .get()
-                .extracting(Order::id)
-                .isEqualTo("O-001");
+        Order order = orderRepo.getById("O-001").orElseThrow();
 
-        assertThat(orderRepo.getById("O-001"))
-                .get()
-                .extracting(Order::products)
-                .asList()
+        assertThat(order.id()).isEqualTo("O-001");
+        assertThat(order.items())
+                .extracting(OrderItem::product)
                 .containsExactly(
                         new Product("P-001", "Apfel"),
                         new Product("P-002", "Banane")
                 );
+        assertThat(order.items())
+                .extracting(OrderItem::quantity)
+                .containsOnly(1);
     }
 
     @Test
     void addOrder_shouldStoreOnlyExistingProducts_whenOneProductDoesNotExist() {
-        shopService.addOrder(
-                "O-002",
-                List.of("P-001", "P-999")
-        );
+        shopService.addOrder("O-002", List.of("P-001", "P-999"));
 
-        assertThat(orderRepo.getById("O-002"))
-                .isPresent()
-                .get()
-                .extracting(Order::products)
-                .asList()
-                .containsExactly(
-                        new Product("P-001", "Apfel")
-                );
+        Order order = orderRepo.getById("O-002").orElseThrow();
+
+        assertThat(order.items())
+                .extracting(OrderItem::product)
+                .containsExactly(new Product("P-001", "Apfel"));
     }
 
     @Test
