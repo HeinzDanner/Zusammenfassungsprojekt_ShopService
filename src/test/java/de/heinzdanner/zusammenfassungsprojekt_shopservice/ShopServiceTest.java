@@ -22,8 +22,8 @@ class ShopServiceTest {
         orderRepo = new OrderListRepo();
         shopService = new ShopService(productRepo, orderRepo);
 
-        productRepo.add(new Product("P-001", "Apfel"));
-        productRepo.add(new Product("P-002", "Banane"));
+        productRepo.add(new Product("P-001", "Apfel", 10));
+        productRepo.add(new Product("P-002", "Banane", 20));
     }
 
     @Test
@@ -36,8 +36,8 @@ class ShopServiceTest {
         assertThat(order.items())
                 .extracting(OrderItem::product)
                 .containsExactly(
-                        new Product("P-001", "Apfel"),
-                        new Product("P-002", "Banane")
+                        new Product("P-001", "Apfel", 10),
+                        new Product("P-002", "Banane", 20)
                 );
         assertThat(order.items())
                 .extracting(OrderItem::quantity)
@@ -52,7 +52,7 @@ class ShopServiceTest {
 
         assertThat(order.items())
                 .extracting(OrderItem::product)
-                .containsExactly(new Product("P-001", "Apfel"));
+                .containsExactly(new Product("P-001", "Apfel", 10));
     }
 
     @Test
@@ -108,5 +108,34 @@ class ShopServiceTest {
         assertThatThrownBy(() -> shopService.addOrder("O-006", List.of("P-002")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("already exists");
+    }
+
+    @Test
+    void receiveGoods_shouldIncreaseStock() {
+        Product before = productRepo.getById("P-001").orElseThrow();
+        assertThat(before.stock()).isEqualTo(10);
+
+        shopService.receiveGoods("P-001", 5);
+
+        Product after = productRepo.getById("P-001").orElseThrow();
+        assertThat(after.stock()).isEqualTo(15);
+    }
+
+    @Test
+    void removeGoods_shouldDecreaseStock() {
+        Product before = productRepo.getById("P-001").orElseThrow();
+        assertThat(before.stock()).isEqualTo(10);
+
+        shopService.removeGoods("P-001", 4);
+
+        Product after = productRepo.getById("P-001").orElseThrow();
+        assertThat(after.stock()).isEqualTo(6);
+    }
+
+    @Test
+    void removeGoods_shouldRejectWhenStockIsTooLow() {
+        assertThatThrownBy(() -> shopService.removeGoods("P-001", 999))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Not enough stock");
     }
 }

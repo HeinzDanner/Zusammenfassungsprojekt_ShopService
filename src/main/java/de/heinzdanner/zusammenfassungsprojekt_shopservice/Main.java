@@ -6,12 +6,9 @@ public class Main {
 
     public static void main(String[] args) {
         ProductRepo productRepo = new ProductRepo();
-
-        Product apple = new Product("P-001", "Apfel");
-        Product banana = new Product("P-002", "Banane");
-
-        productRepo.add(apple);
-        productRepo.add(banana);
+        
+        productRepo.add(new Product("P-001", "Apfel", 10));
+        productRepo.add(new Product("P-002", "Banane", 20));
 
         OrderRepo orderRepo = new OrderMapRepo();
         ShopService shopService = new ShopService(productRepo, orderRepo);

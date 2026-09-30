@@ -12,8 +12,8 @@ class OrderTest {
 
     @Test
     void totalPrice_shouldSumAllOrderItems() {
-        Product apple = new Product("P-001", "Apfel");
-        Product banana = new Product("P-002", "Banane");
+        Product apple = new Product("P-001", "Apfel", 10);
+        Product banana = new Product("P-002", "Banane", 20);
 
         Order order = new Order(
                 "O-001",
@@ -28,8 +28,8 @@ class OrderTest {
 
     @Test
     void setQuantityForProduct_shouldUpdateQuantityAndTotalPrice() {
-        Product apple = new Product("P-001", "Apfel");
-        Product banana = new Product("P-002", "Banane");
+        Product apple = new Product("P-001", "Apfel", 10);
+        Product banana = new Product("P-002", "Banane", 20);
 
         Order order = new Order(
                 "O-001",
@@ -50,7 +50,7 @@ class OrderTest {
 
     @Test
     void constructor_shouldRejectBlankOrderId() {
-        Product apple = new Product("P-001", "Apfel");
+        Product apple = new Product("P-001", "Apfel", 10);
         OrderItem item = new OrderItem(
                 apple,
                 1,
@@ -71,7 +71,7 @@ class OrderTest {
 
     @Test
     void setQuantityForProduct_shouldRejectUnknownProduct() {
-        Product apple = new Product("P-001", "Apfel");
+        Product apple = new Product("P-001", "Apfel", 10);
         OrderItem item = new OrderItem(
                 apple,
                 1,
@@ -89,7 +89,7 @@ class OrderTest {
 
     @Test
     void setQuantityForProduct_shouldRejectInvalidQuantity() {
-        Product apple = new Product("P-001", "Apfel");
+        Product apple = new Product("P-001", "Apfel", 10);
         OrderItem item = new OrderItem(
                 apple,
                 1,

@@ -59,4 +59,44 @@ public class ShopService {
             );
         }
     }
+
+    public void receiveGoods(String productId, int quantity) {
+        if (productId == null || productId.isBlank()) {
+            throw new IllegalArgumentException("Product ID must not be null or blank.");
+        }
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero.");
+        }
+
+        Product product = productRepo.getById(productId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Product with ID " + productId + " does not exist."
+                ));
+
+        Product updatedProduct = product.withStock(product.stock() + quantity);
+        productRepo.update(updatedProduct);
+    }
+
+    public void removeGoods(String productId, int quantity) {
+        if (productId == null || productId.isBlank()) {
+            throw new IllegalArgumentException("Product ID must not be null or blank.");
+        }
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero.");
+        }
+
+        Product product = productRepo.getById(productId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Product with ID " + productId + " does not exist."
+                ));
+
+        if (product.stock() < quantity) {
+            throw new IllegalArgumentException(
+                    "Not enough stock for product ID " + productId + "."
+            );
+        }
+
+        Product updatedProduct = product.withStock(product.stock() - quantity);
+        productRepo.update(updatedProduct);
+    }
 }

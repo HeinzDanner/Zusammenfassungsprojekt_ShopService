@@ -51,10 +51,10 @@ abstract class OrderRepoContractTest {
     void add_shouldReplaceOrderWithSameId() {
         OrderRepo orderRepo = createRepository();
         Order first = order("O-001");
-        // Order replacement = new Order("O-001", List.of(new Product("P-002", "Banane")));
+        // Order replacement = new Order("O-001", List.of(new Product("P-002", "Banane", 20)));
         Order replacement = new Order(
                 "O-001",
-                List.of(new OrderItem(new Product("P-002", "Banane"), 1, BigDecimal.ONE))
+                List.of(new OrderItem(new Product("P-002", "Banane", 20), 1, BigDecimal.ONE))
         );
         orderRepo.add(first);
         orderRepo.add(replacement);
@@ -66,7 +66,7 @@ abstract class OrderRepoContractTest {
     private Order order(String id) {
         return new Order(
                 id,
-                List.of(new OrderItem(new Product("P-001", "Apfel"), 1, BigDecimal.ONE))
+                List.of(new OrderItem(new Product("P-001", "Apfel", 10), 1, BigDecimal.ONE))
         );
     }
 }

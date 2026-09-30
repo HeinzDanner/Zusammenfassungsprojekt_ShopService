@@ -16,7 +16,7 @@ class ProductRepoTest {
 
     @Test
     void add_shouldAddProduct() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
 
         productRepo.add(product);
 
@@ -25,7 +25,7 @@ class ProductRepoTest {
 
     @Test
     void getById_shouldReturnProduct_whenProductExists() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
         productRepo.add(product);
 
         assertThat(productRepo.getById("P-001")).contains(product);
@@ -38,7 +38,7 @@ class ProductRepoTest {
 
     @Test
     void remove_shouldDeleteProduct() {
-        Product product = new Product("P-001", "Apfel");
+        Product product = new Product("P-001", "Apfel", 10);
         productRepo.add(product);
 
         productRepo.remove(product);
