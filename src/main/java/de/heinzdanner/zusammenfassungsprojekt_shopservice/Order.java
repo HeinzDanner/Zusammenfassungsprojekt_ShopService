@@ -13,4 +13,14 @@ public record Order(
                 .map(OrderItem::totalPrice)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    public Order setQuantityForProduct(String productId, int newQuantity) {
+        List<OrderItem> updatedItems = items.stream()
+                .map(item -> item.product().id().equals(productId)
+                        ? item.withQuantity(newQuantity)
+                        : item)
+                .toList();
+
+        return new Order(id, updatedItems);
+    }
 }

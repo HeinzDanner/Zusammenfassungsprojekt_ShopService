@@ -24,4 +24,26 @@ class OrderTest {
 
         assertThat(order.totalPrice()).isEqualByComparingTo("9.00");
     }
+
+    @Test
+    void setQuantityForProduct_shouldUpdateQuantityAndTotalPrice() {
+        Product apple = new Product("P-001", "Apfel");
+        Product banana = new Product("P-002", "Banane");
+
+        Order order = new Order(
+                "O-001",
+                List.of(
+                        new OrderItem(apple, 2, new BigDecimal("1.50")),
+                        new OrderItem(banana, 3, new BigDecimal("2.00"))
+                )
+        );
+
+        Order updatedOrder = order.setQuantityForProduct("P-001", 5);
+
+        assertThat(updatedOrder.items())
+                .extracting(OrderItem::quantity)
+                .containsExactly(5, 3);
+
+        assertThat(updatedOrder.totalPrice()).isEqualByComparingTo("13.50");
+    }
 }
