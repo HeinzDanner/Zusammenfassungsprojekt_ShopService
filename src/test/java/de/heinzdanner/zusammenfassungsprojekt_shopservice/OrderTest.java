@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OrderTest {
 
@@ -45,5 +46,62 @@ class OrderTest {
                 .containsExactly(5, 3);
 
         assertThat(updatedOrder.totalPrice()).isEqualByComparingTo("13.50");
+    }
+
+    @Test
+    void constructor_shouldRejectBlankOrderId() {
+        Product apple = new Product("P-001", "Apfel");
+        OrderItem item = new OrderItem(
+                apple,
+                1,
+                new BigDecimal("1.50")
+        );
+
+        assertThatThrownBy(() -> new Order("   ", List.of(item)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Order ID");
+    }
+
+    @Test
+    void constructor_shouldRejectNullItems() {
+        assertThatThrownBy(() -> new Order("O-001", null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("items");
+    }
+
+    @Test
+    void setQuantityForProduct_shouldRejectUnknownProduct() {
+        Product apple = new Product("P-001", "Apfel");
+        OrderItem item = new OrderItem(
+                apple,
+                1,
+                new BigDecimal("1.50")
+        );
+
+        Order order = new Order("O-001", List.of(item));
+
+        assertThatThrownBy(() ->
+                order.setQuantityForProduct("P-999", 2)
+        )
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("P-999");
+    }
+
+    @Test
+    void setQuantityForProduct_shouldRejectInvalidQuantity() {
+        Product apple = new Product("P-001", "Apfel");
+        OrderItem item = new OrderItem(
+                apple,
+                1,
+                new BigDecimal("1.50")
+        );
+
+        Order order = new Order("O-001", List.of(item));
+
+        assertThatThrownBy(() ->
+                order.setQuantityForProduct("P-001", 0)
+        )
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("greater than zero");
     }
 }
